@@ -1,0 +1,28 @@
+{
+    "id": "1323BC8D",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1705958185848.0,
+    "source_on_save": false,
+    "relative_order": 9,
+    "properties": {
+        "id": "7de3ae47985b4b769a56d940598720af",
+        "name": "courtgeo",
+        "title": "courtgeo",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 8247620832883384352,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1705958185848,
+    "read_only": false,
+    "read_only_alternatives": []
+}
