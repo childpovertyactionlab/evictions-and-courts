@@ -1,0 +1,512 @@
+opacity = 0.1,
+smoothFactor = 1,
+options = pathOptions(clickable = F, interactive = F)
+) %>%
+addMarkers(
+group = "JP locations",
+data = jpcourts,
+icon = ~iconList[Court],
+) %>%
+addCircleMarkers(
+group = levels(df$group)[2],
+data = df %>% filter(show == 2),
+radius = 2,
+stroke = FALSE,
+color = ~gfill,
+fillOpacity = 0.3
+) %>%
+addCircleMarkers(
+group = levels(df$group)[1],
+data = df %>% filter(show == 1),
+radius = 2,
+stroke = FALSE,
+color = ~gfill,
+fillOpacity = 0.3
+) %>%
+addLegend(
+"bottomright",
+pal = colorFactor(palette = isochrone$fill, domain = isochrone$time),
+values = isochrone$time,
+title = "Driving distance (min)",
+opacity = 0.7
+) %>%
+addLayersControl(
+overlayGroups = c(levels(df$group), "JP locations"),
+baseGroups = c("Drive zones on", "Drive zones off"),
+position = "topright",
+options = layersControlOptions(collapsed = FALSE)
+) %>%
+setMaxBounds(expanded_bounds[1], expanded_bounds[2], expanded_bounds[3], expanded_bounds[4])
+show_dist <- df %>%
+group_by(show, time) %>%
+summarize(n = n(), prop = n() / sum())
+View(show_dist)
+show_dist <- df %>%
+group_by(time) %>%
+summarize(n = n())
+show_dist <- df %>%
+group_by(time) %>%
+summarize(n = n(), show = show)
+time_count <- df %>%
+st_drop_geometry() %>%
+group_by(time) %>%
+summarize(n = n(), show = show)
+View(time_count)
+time_count <- df %>%
+st_drop_geometry() %>%
+group_by(time) %>%
+summarize(n = n())
+time_count <- df %>%
+st_drop_geometry() %>%
+group_by(time) %>%
+summarize(time_count = n())
+show_time_count <- df %>%
+st_drop_geometry() %>%
+left_join(time_count, by = "time") %>%
+group_by(time, show) %>%
+summarize(n = n(), prop = n()/time_count)
+View(show_time_count)
+time_count <- df %>%
+st_drop_geometry() %>%
+group_by(time) %>%
+summarize(time_count = n())
+show_time_count <- df %>%
+st_drop_geometry() %>%
+left_join(time_count, by = "time") %>%
+group_by(time, show) %>%
+summarize(n = n(), prop = n()/time_count)
+show_time_count <- df %>%
+st_drop_geometry() %>%
+left_join(time_count, by = "time") %>%
+group_by(time, show) %>%
+summarize(n = n(), prop = n()/tc)
+time_count <- df %>%
+st_drop_geometry() %>%
+group_by(time) %>%
+summarize(tc = n())
+show_time_count <- df %>%
+st_drop_geometry() %>%
+left_join(time_count, by = "time") %>%
+group_by(time, show) %>%
+summarize(n = n(), prop = n()/tc)
+show_time_count <- df %>%
+st_drop_geometry() %>%
+left_join(time_count, by = "time") %>%
+group_by(time, show) %>%
+summarize(n = n(), prop = n()/prop = n / first(tc)))
+show_time_count <- df %>%
+st_drop_geometry() %>%
+left_join(time_count, by = "time") %>%
+group_by(time, show) %>%
+summarize(n = n(), prop = n()/prop = n / first(tc))
+show_time_count <- df %>%
+st_drop_geometry() %>%
+left_join(time_count, by = "time") %>%
+group_by(time, show) %>%
+summarize(n = n(), prop = n / first(tc))
+fig <- plot_ly(data = show_time_count, type = 'bar', orientation = 'h',
+x = ~n, y = ~time,
+color = ~show, # This defines the stacking/grouping variable
+colors = "PaletteHere", # Optional: Specify your color palette
+text = ~paste('Count: ', n) # Optional: Display count on the bars
+) %>% layout(barmode = 'stack',
+xaxis = list(title = 'Count'),
+yaxis = list(title = 'Time'),
+margin = list(l = 100), # Adjust left margin to fit y-axis labels if needed
+title = 'Counts by Show over Time')
+fig <- plot_ly(data = show_time_count, type = 'bar', orientation = 'h',
+x = ~n, y = ~time,
+color = ~show, # This defines the stacking/grouping variable
+# colors = "PaletteHere", # Optional: Specify your color palette
+text = ~paste('Count: ', n) # Optional: Display count on the bars
+) %>% layout(barmode = 'stack',
+xaxis = list(title = 'Count'),
+yaxis = list(title = 'Time'),
+margin = list(l = 100), # Adjust left margin to fit y-axis labels if needed
+title = 'Counts by Show over Time')
+fig <- plot_ly(data = show_time_count, type = 'bar', orientation = 'h',
+x = ~n, y = ~time,
+color = ~show, # This defines the stacking/grouping variable
+# colors = "PaletteHere", # Optional: Specify your color palette
+text = ~paste('Count: ', n) # Optional: Display count on the bars
+)
+fig <- plotly::plot_ly(data = show_time_count, type = 'bar', orientation = 'h',
+x = ~n, y = ~time,
+color = ~show, # This defines the stacking/grouping variable
+# colors = "PaletteHere", # Optional: Specify your color palette
+text = ~paste('Count: ', n) # Optional: Display count on the bars
+) %>% layout(barmode = 'stack',
+xaxis = list(title = 'Count'),
+yaxis = list(title = 'Time'),
+margin = list(l = 100), # Adjust left margin to fit y-axis labels if needed
+title = 'Counts by Show over Time')
+fig <- plotly::plot_ly(data = show_time_count, type = 'bar', orientation = 'h',
+x = ~n, y = ~time,
+color = ~show, # This defines the stacking/grouping variable
+# colors = "PaletteHere", # Optional: Specify your color palette
+text = ~paste('Count: ', n) # Optional: Display count on the bars
+) %>% plotly::layout(barmode = 'stack',
+xaxis = list(title = 'Count'),
+yaxis = list(title = 'Time'),
+margin = list(l = 100), # Adjust left margin to fit y-axis labels if needed
+title = 'Counts by Show over Time')
+fig
+fig <- plotly::plot_ly(data = show_time_count, type = 'bar', orientation = 'h',
+x = ~n, y = ~time,
+color = ~show, # This defines the stacking/grouping variable
+# colors = "PaletteHere", # Optional: Specify your color palette
+text = ~paste('Count: ', n) # Optional: Display count on the bars
+)
+fig
+fig <- show_time_count %>% plotly::plot_ly(type = 'bar', orientation = 'h',
+x = ~n, y = ~time,
+color = ~show,
+)
+fig <- show_time_count %>% plotly::plot_ly(type = 'bar', orientation = 'h',
+x = ~n, y = ~time,
+color = ~show
+)
+fig
+fig <- show_time_count %>% tibble() %>% plotly::plot_ly(type = 'bar', orientation = 'h',
+x = ~n, y = ~time,
+color = ~show
+)
+fig
+fig <- show_time_count %>%
+tibble() %>%
+plotly::plot_ly(
+type = 'bar',
+orientation = 'h',
+x = ~n,
+y = ~time,
+color = ~show
+)
+fig
+fig <- show_time_count %>%
+tibble() %>%
+plotly::plot_ly(
+x = ~n,
+y = ~time,
+color = ~show
+)
+fig
+fig <- show_time_count %>%
+ggplot(
+x = ~n,
+y = ~time,
+color = ~show)
+fig
+show_time_count %>%
+ggplot(aes(x = time, y = n, fill = show)) +
+geom_bar(stat = "identity", width = 0.7)
+library(tidycensus)
+library(tidycensus)
+library(sf)
+require(tidyverse)
+require(tidyverse)
+library(leaflet)
+library(traveltimeR)
+library(mapboxapi)
+library(leaflet)
+library(traveltimeR)
+library(mapboxapi)
+dallas_co <- sf::read_sf("data/dallas_co.geojson")
+dallas_co <- sf::read_sf("data/dallas_co.geojson")
+jpcourts <- read_csv("C:/Users/taylo/CPAL Dropbox/Data Library/Dallas County/JP Courts/jpcourts.csv") %>%
+mutate(Court = paste0("jp", str_sub(`Court/Precinct`, 4, 4))) %>%
+sf::st_as_sf(coords = c("long", "lat")) %>%
+sf::st_set_crs(st_crs(dallas_co))
+isochrone <- mb_isochrone(jpcourts) %>%
+group_by(time) %>%
+summarize(geometry = st_union(geometry)) %>%
+st_transform(st_crs(dallas_co)) %>%
+st_make_valid() %>%
+st_intersection(dallas_co) %>%
+mutate(
+fill = case_match(
+time,
+15 ~ '#fcba03',
+10 ~ '#9fde00',
+5 ~ '#2ead00',
+)
+) %>%
+select(time, geometry, fill)
+anti <- st_difference(isochrone, dallas_co)
+bounds <- sf::st_bbox(dallas_co)
+expanded_bounds <- as.vector(c(
+xmin = bounds["xmin"] - 0.25,
+ymin = bounds["ymin"] - 0.25,
+xmax = bounds["xmax"] + 0.25,
+ymax = bounds["ymax"] + 0.25
+))
+evictions <- arrow::read_parquet("C:/Users/taylo/CPAL Dropbox/Data Library/Dallas County/Eviction Records/Data/Dallas County Eviction Master/EvictionRecords_Master.parquet")[-1,]
+googlesheets4::gs4_auth(email = "taylor@childpovertyactionlab.org")
+obs <- googlesheets4::read_sheet(ss = "https://docs.google.com/spreadsheets/d/1O9P06SgvZ_nRGc64W2OsSjyX9iCS_LkcsG9087HNTuk",
+sheet = "Form Responses 1") %>%
+janitor::clean_names(.) %>%
+rename("timeStamp"="timestamp",
+"observer"="observer",
+"observationDate"="date_of_observation",
+"jpCourt"="justice_of_the_peace_court",
+"docketStart"="docket_start_time_please_indicate_what_time_the_judge_called_the_first_case_on_the_docket_use_format_hh_mm_and_specify_am_or_pm_e_g_09_32_am",
+"docketEnd"="docket_end_time_please_indicate_the_time_the_judge_finished_hearing_the_last_case_on_the_docket_use_format_hh_mm_and_specify_am_or_pm_e_g_12_34_pm",
+"caseType"="is_this_a_commercial_or_residential_eviction_case",
+"plaintiffName"="plaintiff_landlord_name",
+"plaintiffDesignee"="did_the_plaintiff_landlord_or_their_designee_like_a_property_manager_appear",
+"plaintiffRep"="did_the_plaintiff_landlord_have_additional_representation_of_some_kind",
+"defName"="defendant_tenant_name",
+"defAppear"="did_the_defendant_tenant_appear",
+"defRep"="did_the_defendant_tenant_have_additional_representation_of_some_kind",
+"evicReason"="reason_for_eviction_select_multiple_if_applicable",
+"totalOwned"="total_amount_owed_please_indicate_the_total_amount_that_the_judge_or_landlord_states_is_owed_include_the_sum_of_rent_or_damages_owed_plus_court_costs_use_format_xxxx_xx_for_example_1234_50",
+"noticeVacate"="was_there_any_discussion_about_the_notice_to_vacate_ntv",
+"noticeConfirm"="if_yes_did_the_judge_confirm_the_ntv",
+"jpRuled"="the_jp_ruled_in_favor_of",
+"outcomeOther"="if_you_selected_other_please_specify_the_outcome_of_the_case_below",
+"otherNotes"="additional_case_notes"
+) %>%
+filter(
+# !jpCourt %in% c("5-2", "3-2", "2-1"),
+!is.na(jpCourt),
+observationDate <= today()
+) %>%
+mutate(jpCourt = paste("Court", jpCourt)) %>%
+filter(!is.na(jpCourt)) %>%
+mutate(jpRuled = factor(
+jpRuled,
+levels =
+c("Plaintiff (landlord)",
+"Plaintiff by default (defendant no-show)",
+"Defendant (tenant)",
+"Defendant by default (plaintiff no-show)",
+"The case was abated or reset/rescheduled to a later date.",
+"The case was dismissed.",
+"Other",
+"Unknown"
+)
+)
+# labels =
+#   c(
+#     "Plaintiff (landlord)" = "Plaintiff (landlord)",
+#     "Plaintiff by default (defendant no-show)" = "Plaintiff by default (defendant no-show)",
+#     "Unknown" = "Unknown",
+#     "Defendant (tenant)" = "Defendant (tenant)",
+#     "Other" = "Other",
+#     "Defendant by default (plaintiff no-show)" = "Defendant by default (plaintiff no-show)",
+#     "The case was abated or reset/rescheduled to a later date." = "The case was abated or rescheduled",
+#     "The case was dismissed." = "The case was dismissed"
+#   )
+)
+df0 <- evictions %>%
+right_join(obs, by = c("case_number"), suffix = c("", "_obs")) %>%
+filter(jpRuled %in%
+c("Plaintiff (landlord)",
+"Plaintiff by default (defendant no-show)")) %>%
+mutate(
+show = case_when(
+jpRuled == "Plaintiff (landlord)" ~ 1,
+jpRuled == "Plaintiff by default (defendant no-show)" ~ 2,
+TRUE ~ NA
+))
+ct <- NULL
+ct$showcount <- nrow(df0 %>% filter(show == 1))
+ct$noshowcount <- nrow(df0 %>% filter(show == 2))
+df <- df0 %>%
+mutate(
+group = factor(case_when(
+jpRuled == "Plaintiff (landlord)" ~ paste0("Defendant appeared (", ct$showcount, ")"),
+jpRuled == "Plaintiff by default (defendant no-show)" ~ paste0("Defendant did not appear (", ct$noshowcount, ")"),
+TRUE ~ NA
+), levels = c(
+paste0("Defendant appeared (", ct$showcount, ")"),
+paste0("Defendant did not appear (", ct$noshowcount, ")")
+)),
+lng = jitter(as.numeric(X), 0.001),
+lat = jitter(as.numeric(Y), 0.001)
+) %>%
+filter(!is.na(lng), !is.na(lat)) %>%
+sf::st_as_sf(coords = c("lng", "lat")) %>%
+sf::st_set_crs(st_crs(isochrone)) %>%
+st_join(isochrone) %>%
+mutate(
+time = factor(if_else(is.na(time), "More than 15", as.character(time)),
+levels = c("5","10","15","More than 15")),
+fill = if_else(is.na(fill), '#a36250', fill),
+gfill = case_match(
+group,
+levels(group)[1] ~ '#133091',
+levels(group)[2] ~ '#c22d23'
+),
+id = row_number()
+)
+time_count <- df %>%
+st_drop_geometry() %>%
+group_by(time) %>%
+summarize(tc = n())
+show_time_count <- df %>%
+st_drop_geometry() %>%
+left_join(time_count, by = "time") %>%
+group_by(time, show) %>%
+summarize(n = n(), prop = n / first(tc))
+show_time_count %>%
+ggplot(aes(x = time, y = n, fill = show)) +
+geom_bar(stat = "identity", width = 0.7)
+show_time_count %>%
+ggplot(aes(x = time, y = n, fill = show)) +
+geom_bar(stat = "identity", width = 0.7) +
+geom_text(aes(label = ifelse(n > 0.15, scales::number(n), "")),
+position = position_dodge(width=0.9),
+hjust = 1.1,
+size = 8,
+colour = "white") +
+geom_text(aes(label = ifelse(n <= 0.15, scales::number(n), "")),
+position = position_dodge(width=0.9),
+hjust = -0.1,
+size = 8,
+colour = "grey")
+show_time_count %>%
+ggplot(aes(x = time, y = n, fill = show)) +
+geom_bar(stat = "identity", width = 0.7) +
+geom_text(aes(label = ifelse(n > 0.15, scales::number(n), "")),
+position = position_dodge(width=0.9),
+hjust = 1.1,
+size = 8,
+colour = "white") +
+geom_text(aes(label = ifelse(n <= 0.15, scales::number(n), "")),
+position = position_dodge(width=0.9),
+hjust = -0.1,
+size = 8,
+colour = "grey") +
+# scale_x_continuous(labels = scales::percent_format(scale = 100), limits = c(0,1)) +
+theme_minimal() +
+theme(
+legend.position = "none",
+title = element_blank(),
+axis.title = element_blank(),
+axis.text.y = element_text(size = 14)
+) +
+scale_color_manual(values = cpaltemplates::palette_cpal_main)
+show_time_count %>%
+ggplot(aes(x = time, y = n, fill = show)) +
+geom_bar(stat = "identity", width = 0.7) +
+coord_flip() +
+geom_text(aes(label = ifelse(n > 0.15, scales::number(n), "")),
+position = position_dodge(width=0.9),
+hjust = 1.1,
+size = 8,
+colour = "white") +
+geom_text(aes(label = ifelse(n <= 0.15, scales::number(n), "")),
+position = position_dodge(width=0.9),
+hjust = -0.1,
+size = 8,
+colour = "grey") +
+# scale_x_continuous(labels = scales::percent_format(scale = 100), limits = c(0,1)) +
+theme_minimal() +
+theme(
+legend.position = "none",
+title = element_blank(),
+axis.title = element_blank(),
+axis.text.y = element_text(size = 14)
+) +
+scale_color_manual(values = cpaltemplates::palette_cpal_main)
+show_time_count <- df %>%
+st_drop_geometry() %>%
+left_join(time_count, by = "time") %>%
+group_by(time, show) %>%
+summarize(n = n(), prop = n / first(tc)) %>%
+mutate(time = paste(time, "minutes"))
+show_time_count %>%
+ggplot(aes(x = time, y = n, fill = show)) +
+geom_bar(stat = "identity", width = 0.7) +
+coord_flip() +
+geom_text(aes(label = ifelse(n > 0.15, scales::number(n), "")),
+position = position_dodge(width=0.9),
+hjust = 1.1,
+size = 8,
+colour = "white") +
+geom_text(aes(label = ifelse(n <= 0.15, scales::number(n), "")),
+position = position_dodge(width=0.9),
+hjust = -0.1,
+size = 8,
+colour = "grey") +
+# scale_x_continuous(labels = scales::percent_format(scale = 100), limits = c(0,1)) +
+theme_minimal() +
+theme(
+legend.position = "none",
+title = element_blank(),
+axis.title = element_blank(),
+axis.text.y = element_text(size = 14)
+) +
+scale_color_manual(values = cpaltemplates::palette_cpal_main)
+show_time_count <- df %>%
+st_drop_geometry() %>%
+left_join(time_count, by = "time") %>%
+group_by(time, show) %>%
+summarize(n = n(), prop = n / first(tc)) %>%
+mutate(time = paste(time, "min."))
+show_time_count %>%
+plotly::plot_ly()
+show_time_count %>%
+plotly::plot_ly(
+x = time,
+y = n,
+color = show
+)
+show_time_count %>%
+plotly::plot_ly(
+type = "bar"
+x = time,
+show_time_count %>%
+plotly::plot_ly(
+type = "bar",
+x = time,
+y = n,
+color = show
+)
+show_time_count %>%
+plotly::plot_ly(
+type = "bar",
+x = ~time,
+y = ~n,
+color = ~show
+)
+show_time_count %>%
+plotly::plot_ly(
+type = "bar",
+x = ~time,
+y = ~n,
+fill = ~show
+)
+show_time_count %>%
+plotly::plot_ly(
+type = "bar",
+x = ~time,
+y = ~n,
+color = ~show
+)
+show_time_count %>%
+plotly::plot_ly(
+type = "bar",
+x = ~n,
+y = ~time,
+color = ~show,
+orientation = "h"
+)
+show_time_count %>%
+plotly::plot_ly(
+type = "bar",
+x = ~n,
+y = ~time,
+color = ~show,
+orientation = "h"
+) %>%
+layout(showlegend = FALSE)
+show_time_count %>%
+plotly::plot_ly(
+type = "bar",
+x = ~n,
+y = ~time,
+color = ~show,
+orientation = "h"
+) %>%
+plotly::layout(showlegend = FALSE)
