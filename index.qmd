@@ -13,25 +13,43 @@ library(traveltimeR)
 library(mapboxapi)
 library(plotly)
 
+sf_use_s2(FALSE)
+
 dallas_co <- sf::read_sf("data/dallas_co.geojson")
 # dallas_co <- tigris::counties(state = "TX") %>%
 #   filter(NAME == "Dallas")
 # sf::write_sf(dallas_co, "data/dallas_co.geojson")
 
+
+jpbounds <- sf::read_sf("data/jpcourt_bounds.geojson")%>%
+  st_transform(st_crs(dallas_co))
+
+jpbounds_inner <- sf::read_sf("data/jpcourts_inner.geojson") %>%
+  st_transform(st_crs(dallas_co))
+
 jpcourts <- read_csv("C:/Users/taylo/CPAL Dropbox/Data Library/Dallas County/JP Courts/jpcourts.csv") %>%
-  mutate(Court = paste0("jp", str_sub(`Court/Precinct`, 4, 4))) %>%
-  sf::st_as_sf(coords = c("long", "lat")) %>%
-  sf::st_set_crs(st_crs(dallas_co))
+  mutate(Court = paste0("jp", str_sub(`Court/Precinct`, 4, 4)),
+         jp = str_sub(`Court/Precinct`, 4, 4)) %>%
+  sf::st_as_sf(coords = c("long", "lat"), crs = st_crs(dallas_co)) %>%
+  st_make_valid()
 # jpcourts_geo <- jpcourts %>%
 #   tidygeocoder::geocode(Address, method = "arcgis", lat = lat, long = long)
 # write_csv(jpcourts_geo, "C:/Users/taylo/CPAL Dropbox/Data Library/Dallas County/JP Courts/jpcourts.csv")
 
-isochrone <- mb_isochrone(jpcourts) %>%
-  group_by(time) %>%
-  summarize(geometry = st_union(geometry)) %>%
-  st_transform(st_crs(dallas_co)) %>%
-  st_make_valid() %>%
-  st_intersection(dallas_co) %>%
+isochrones <- list()
+
+for (n in unique(jpcourts$jp)) {
+  isochrone <- mb_isochrone(jpcourts %>% filter(jp == n)) %>%
+    st_transform(st_crs(dallas_co)) %>%
+    group_by(time) %>%
+    summarize(geometry = st_union(geometry)) %>%
+    st_intersection(jpbounds %>% filter(DallasCo_1 == n)) %>%
+    st_make_valid()
+  
+  isochrones[[n]] <- isochrone
+}
+
+isochrone <- bind_rows(isochrones) %>%
   mutate(
     fill = case_match(
       time,
@@ -53,6 +71,35 @@ isochrone <- mb_isochrone(jpcourts) %>%
     )
   ) %>%
   select(time, geometry, fill, opa, rgba)
+
+
+# isochrone <- mb_isochrone(jpcourts) %>%
+#   st_transform(st_crs(dallas_co)) %>%
+#   group_by(time) %>%
+#   summarize(geometry = st_union(geometry)) %>%
+#   st_intersection(dallas_co) %>%
+#   st_make_valid() %>%
+#   mutate(
+#     fill = case_match(
+#       time,
+#       15 ~ '#fcba03',
+#       10 ~ '#9fde00',
+#       5 ~ '#2ead00',
+#     ),
+#     opa = case_match(
+#       time,
+#       15 ~ 0.1,
+#       10 ~ 0.2,
+#       5 ~ 0.3,
+#     ),
+#     rgba = case_match(
+#       time,
+#       15 ~ rgb(50/255, 168/255, 82/255, 0.1),
+#       10 ~ rgb(50/255, 168/255, 82/255, 0.2),
+#       5 ~ rgb(50/255, 168/255, 82/255, 0.3)
+#     )
+#   ) %>%
+#   select(time, geometry, fill, opa, rgba)
 
 anti <- st_difference(isochrone, dallas_co)
   
@@ -416,6 +463,14 @@ leaflet(data = df,
     smoothFactor = 1,
     options = pathOptions(clickable = F, interactive = F)
   ) %>%
+  leaflet::addPolylines(
+    group = "JP locations",
+    data = jpbounds_inner,
+    fillColor = "#333333",
+    fillOpacity = 0.03, weight = 2, color = "#333333",
+    smoothFactor = 1,
+    options = pathOptions(clickable = F, interactive = F)
+  ) %>%
   addPolygons(
     group = "Drive time zones",
     data = isochrone,
@@ -430,7 +485,7 @@ leaflet(data = df,
   addMarkers(
     group = "JP locations",
     data = jpcourts,
-    icon = ~iconList[Court],
+    icon = ~iconList[Court]
   ) %>%
   addCircleMarkers(
     group = levels(df$group)[2],

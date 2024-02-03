@@ -1,0 +1,5 @@
+*.gitattributes
+*.Rdata
+*.Rproj.user
+*.Rhistory
+/.quarto/
