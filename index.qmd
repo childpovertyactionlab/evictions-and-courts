@@ -60,14 +60,14 @@ isochrone <- bind_rows(isochrones) %>%
     opa = case_match(
       time,
       15 ~ 0.1,
-      10 ~ 0.2,
-      5 ~ 0.3,
+      10 ~ 0.25,
+      5 ~ 0.4,
     ),
-    rgba = case_match(
+    rgba = case_match( #cpaltemplates::palette_cpal_purple[3]
       time,
-      15 ~ rgb(50/255, 168/255, 82/255, 0.1),
-      10 ~ rgb(50/255, 168/255, 82/255, 0.2),
-      5 ~ rgb(50/255, 168/255, 82/255, 0.3)
+      15 ~ rgb(156/255, 100/255, 247/255, 0.1),
+      10 ~ rgb(156/255, 100/255, 247/255, 0.2),
+      5 ~ rgb(156/255, 100/255, 247/255, 0.3)
     )
   ) %>%
   select(time, geometry, fill, opa, rgba)
@@ -239,8 +239,8 @@ df <- df0 %>%
     fill = if_else(is.na(fill), '#a36250', fill),
     gfill = case_match(
       group,
-      levels(group)[1] ~ '#133091',
-      levels(group)[2] ~ '#c22d23'
+      levels(group)[1] ~ cpaltemplates::palette_cpal_teal[8],
+      levels(group)[2] ~ cpaltemplates::palette_cpal_magenta[5]
     ),
     id = row_number()
   )
@@ -266,8 +266,8 @@ show_time_count <- df %>%
          opa = (if_else(is.na(opa), 0, opa) + 0.1) * 2,
           grgba = case_match(
             show,
-            1 ~ rgb(19, 48, 145, opa*255, maxColorValue = 255),
-            2 ~ rgb(194, 45, 35, opa*255, maxColorValue = 255)
+            1 ~ rgb(4, 45, 51, opa*255, maxColorValue = 255),
+            2 ~ rgb(237, 1, 140, opa*255, maxColorValue = 255)
           ),
          def_appeared = case_match(
             show,
@@ -455,37 +455,43 @@ leaflet(data = df,
                wheelPxPerZoomLevel = 120
                )
              ) %>%
-  addProviderTiles(provider = "CartoDB.Positron") %>%
+  addTiles(urlTemplate = cpaltemplates::cpal_mapbox_mono, attribution = cpaltemplates::cpal_leaflet) %>%
+  # addProviderTiles(provider = "CartoDB.Positron") %>%
+  addMapPane("back", zIndex = 410) %>%
+  addMapPane("mid", zIndex = 415) %>%
+  addMapPane("front", zIndex = 420) %>%
+  addMapPane("veryfront", zIndex = 425) %>%
   addPolygons(
     data = dallas_co,
-    fillColor = "#333333",
-    fillOpacity = 0.03, weight = 2, color = "#333333",
+    fillColor = cpaltemplates::palette_cpal_gray[8],
+    fillOpacity = 0.1, weight = 2.5, color = cpaltemplates::palette_cpal_gray[8],
     smoothFactor = 1,
-    options = pathOptions(clickable = F, interactive = F)
+    options = pathOptions(clickable = F, interactive = F, pane = "mid")
   ) %>%
   leaflet::addPolylines(
     group = "JP locations",
     data = jpbounds_inner,
-    fillColor = "#333333",
-    fillOpacity = 0.03, weight = 2, color = "#333333",
+    fillColor = cpaltemplates::palette_cpal_gray[8],
+    fillOpacity = 0, weight = 2.5, color = cpaltemplates::palette_cpal_gray[8],
     smoothFactor = 1,
-    options = pathOptions(clickable = F, interactive = F)
+    options = pathOptions(clickable = F, interactive = F, pane = "mid")
   ) %>%
   addPolygons(
     group = "Drive time zones",
     data = isochrone,
-    fillColor = '#2ead00',
+    fillColor = '#9c64f7',
     fillOpacity = ~opa, 
     weight = 1, 
-    color = "#333333",
+    color = cpaltemplates::palette_cpal_gray[8],
     opacity = 0.1,
     smoothFactor = 1,
-    options = pathOptions(clickable = F, interactive = F)
+    options = pathOptions(clickable = F, interactive = F, pane = "back")
   ) %>%
   addMarkers(
     group = "JP locations",
     data = jpcourts,
-    icon = ~iconList[Court]
+    icon = ~iconList[Court],
+    options = pathOptions(pane = "veryfront")
   ) %>%
   addCircleMarkers(
     group = levels(df$group)[2],
@@ -493,7 +499,8 @@ leaflet(data = df,
     radius = 2,
     stroke = FALSE,
     color = ~gfill,
-    fillOpacity = 0.3
+    fillOpacity = 0.3,
+    options = pathOptions(pane = "front")
   ) %>%
   addCircleMarkers(
     group = levels(df$group)[1],
@@ -501,7 +508,8 @@ leaflet(data = df,
     radius = 2,
     stroke = FALSE,
     color = ~gfill,
-    fillOpacity = 0.3
+    fillOpacity = 0.3,
+    options = pathOptions(pane = "front")
   ) %>%
   addLegend(
     "bottomright",
